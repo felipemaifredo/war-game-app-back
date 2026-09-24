@@ -160,8 +160,15 @@ const app = new Elysia()
           room.phase = "reinforce"
           room.turnEndsAt = Date.now() + TURN_DURATION_MS;
           
-          // Nomes de todos os 13 territórios da América do Sul
-          const territoryNames = ["brasil", "argentina", "peru", "venezuela", "colombia", "uruguai", "chile", "bolivia", "paraguai", "equador", "guiana", "suriname", "guiana_francesa"]
+          // Nomes de todos os territórios divididos por continentes
+          const territoryNames = [
+            "brasil", "argentina", "venezuela", "peru",
+            "mexico", "california", "nova_iorque", "labrador", "ottawa", "vancouver", "mackenzie", "alasca", "groenlandia",
+            "islandia", "inglaterra", "suecia", "alemanha", "franca", "polonia", "moscou",
+            "argelia", "egito", "congo", "sudao", "madagascar", "africa_do_sul",
+            "oriente_medio", "aral", "omsk", "dudinka", "siberia", "tchita", "mongolia", "vladivostok", "china", "india", "japao", "vietna",
+            "borneu", "sumatra", "nova_guine", "australia"
+          ]
           // Embaralhar territórios (Fisher-Yates)
           for (let i = territoryNames.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -264,8 +271,15 @@ const app = new Elysia()
           return
         }
 
-        const amount = message.amount || 1;
-        if (amount < 1 || validation.fromTerritory!.troops - amount < 1) {
+        const amount = message.amount !== undefined ? message.amount : 1;
+        
+        if (amount === 0) {
+          // Se não quiser transferir tropas adicionais, apenas responde sucesso e encerra a etapa
+          broadcastUpdate({ type: "TRANSFER_CONQUEST_RESULT", from: message.from, to: message.to })
+          return
+        }
+
+        if (amount < 0 || validation.fromTerritory!.troops - amount < 1) {
           ws.send({ error: "Quantidade inválida. O território de origem deve manter pelo menos 1 tropa." })
           return
         }
